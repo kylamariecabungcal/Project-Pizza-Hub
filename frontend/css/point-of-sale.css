@@ -1,0 +1,27 @@
+body {
+    background-color: #102010;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+.product-card {
+    background-color: #1e3a1e;
+    border: none;
+    border-radius: 8px;
+}
+.order-summary {
+    background-color: #1e3a1e;
+    border-radius: 8px;
+    padding: 10px;
+    color: #ffffff;
+}
+.total-cost {
+    font-size: 24px;
+    font-weight: bold;
+}
+.btn-order {
+    background-color: #28a745;
+    color: #fff;
+}
+.btn-order:hover {
+    background-color: #218838;
+}

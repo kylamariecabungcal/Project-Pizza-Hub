@@ -1,0 +1,63 @@
+.head{
+    display: inline;
+    -webkit-text-stroke: 1.5px black;
+}
+.logo{
+    width: 49px;
+    margin-left: 30px;
+}
+main {
+    margin-left: 220px; 
+    padding: 20px;
+}
+header{
+    padding: 2px;
+}
+.side{
+    list-style-type: none;
+    text-decoration: none;
+}
+.bar{
+    margin-top: 50px;
+    margin-left: 20px;
+}
+.pos{
+    text-decoration: none;
+}
+.sidebar{
+    position: fixed;
+    background-color: #292828;
+    height: 100%;
+    width: 223px;
+}
+.sales{
+    width: 100%;
+    background-color: #ffffff;
+    height: 100vh;
+}
+
+.item-card {
+    margin-bottom: 20px;
+    width: 150px;
+}
+.item-card img {
+    width: 150px;
+    height: 150px;
+}
+.order-summary {
+    border: 1px solid #ddd;
+    margin-top: 20px;
+}
+.order-summary .total {
+    font-weight: bold;
+}
+.btn-group {
+    margin-bottom: 20px;
+}
+.order-summary table {
+    width: 100%;
+    table-layout: auto; 
+}
+.order-summary th, .order-summary td {
+    white-space: nowrap; 
+}
