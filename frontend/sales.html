@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.css" rel="stylesheet">
     <title>Products</title>
-    <link rel="stylesheet" href="/frontend/css/point-of-sale.css">
+    <link rel="stylesheet" href="/frontend/css/sales.css">
 </head>
 
 <body>
@@ -46,7 +46,7 @@
                             </a>
                         </li>
                         <li class="nav-item py-2 py-sm-0 my-3">
-                            <a href="transaction.html" class="nav-link text-white">
+                            <a href="inventory.html" class="nav-link text-white">
                                 <i class="fa-solid fa-folder-open" style="color: #ffffff;"></i><span class="fs-5 ms-3 d-none d-sm-inline">Inventory</span>
                             </a>
                         </li>
@@ -65,6 +65,103 @@
 
         </div>
     </div>
+
+
+    <section>
+        <div class="tables inventory-container">
+            <div class="row mb-4">
+                <div class="col-4 d-flex align-items-center">
+                    <h2 class="mb-0 me-5">Sales</h2>    
+                    <input type="date" class="form-control" id="date" placeholder="Select Date" required>        
+                </div>
+            
+    
+            <div class="table-container">
+                <table id="productTable" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Products</th>
+                            <th>Price</th>
+                            <th>Quantity Sold</th>
+                            <th>Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Cheese</td>
+                            <td>₱79.00</td>
+                            <td>17</td>
+                            <td>₱1,343.00</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Pepperoni</td>
+                            <td>₱79.00</td>
+                            <td>12</td>
+                            <td>₱948.00</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Hawaiian</td>
+                            <td>₱79.00</td>
+                            <td>23</td>
+                            <td>₱1,817.00</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Beef Deluxe</td>
+                            <td>₱89.00</td>
+                            <td>9</td>
+                            <td>₱801.00</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Creamy Spinach</td>
+                            <td>₱89.00</td>
+                            <td>7</td>
+                            <td>₱623.00</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Ham & Bacon</td>
+                            <td>₱110.00</td>
+                            <td>22</td>
+                            <td>₱2,420.00</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Beef Supreme</td>
+                            <td>₱125.00</td>
+                            <td>11</td>
+                            <td>₱1,375.00</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>Chicken Alfredo</td>
+                            <td>₱130.00</td>
+                            <td>8</td>
+                            <td>₱1,040.00</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>Triple Pepperoni</td>
+                            <td>₱150.00</td>
+                            <td>13</td>
+                            <td>₱1,950.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-end">
+                                <strong>Total:</strong>
+                            </td>
+                            <td>₱12,317.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
