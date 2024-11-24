@@ -4,8 +4,7 @@ const {
     getInventories,
     getInventory,
     deleteInventory,
-    updateInventory,
-    upload
+    updateInventory
 } = require('../controllers/InventoryController');
 
 const router = express.Router();

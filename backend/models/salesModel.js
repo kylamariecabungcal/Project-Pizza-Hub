@@ -1,21 +1,25 @@
 const mongoose = require('mongoose');
 
-const inventorySchema = new mongoose.Schema({
+const salesSchema = new mongoose.Schema({
     product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
         required: true,
     },
-    stock: {
+    quantity: {
         type: Number,
         required: true,
     },
-    lastUpdated: {
+    totalPrice: {
+        type: Number,
+        required: true,
+    },
+    date: {
         type: Date,
         default: Date.now,
     },
 }, { timestamps: true });
 
-const Inventory = mongoose.models.Inventory || mongoose.model('Inventory', inventorySchema);
+const Sales = mongoose.models.Sales || mongoose.model('Sales', salesSchema);
 
-module.exports = Inventory;
+module.exports = Sales;
