@@ -15,18 +15,27 @@ const createInventory = async (req, res) => {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        const inventory = new Inventory({
-            product: productId,
-            stock,
-        });
+        let inventory = await Inventory.findOne({ product: productId });
 
-        await inventory.save();
-
-        res.status(201).json(inventory);
+        if (inventory) {
+            
+            inventory.stock += stock; 
+            inventory = await inventory.save();
+            return res.status(200).json(inventory); 
+        } else {
+       
+            const newInventory = new Inventory({
+                product: productId,
+                stock,
+            });
+            await newInventory.save();
+            return res.status(201).json(newInventory); 
+        }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 
 
