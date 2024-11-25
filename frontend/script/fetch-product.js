@@ -39,7 +39,7 @@ const menu = document.querySelector('#product-list');
             p.classList.add('card-text', 'text-white');
             button.classList.add('btn', 'btn-order');
 
-            h5.innerHTML = `${menuItem.productName}`;
+            h5.innerHTML = `${menuItem.name}`;
             p.innerText = `₱${menuItem.price}`;
 
 
@@ -53,7 +53,7 @@ const menu = document.querySelector('#product-list');
 
         
             button.innerText = 'Buy Now';
-            button.onclick = () => addToOrder(menuItem.productName, menuItem.price);
+            button.onclick = () => addToOrder(menuItem.name, menuItem.price);
 
             div.append(img);
             div.append(h5);
@@ -67,17 +67,17 @@ const menu = document.querySelector('#product-list');
         let orderItems = [];
         let totalCost = 0;
 
-        function addToOrder(productName, price) {
-            const existingItemIndex = orderItems.findIndex(item => item.name === productName);
+        function addToOrder(name, price) {
+            const existingItemIndex = orderItems.findIndex(item => item.name === name);
 
             
             if (existingItemIndex !== -1) {
                 orderItems[existingItemIndex].quantity += 1;
             } else {
                 orderItems.push({
-                    name: productName,
+                    name: name,
                     price: price,
-                    quantity: 1
+                    quantity: quantity
                 });
             }
 
