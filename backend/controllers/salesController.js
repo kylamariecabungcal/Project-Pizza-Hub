@@ -48,18 +48,38 @@ const createSale = async (req, res) => {
 
 const getSales = async (req, res) => {
     try {
-        const sales = await Sales.find().populate('product'); 
-        res.status(200).json(sales);
+        const { date, page = 1, limit = 10 } = req.query;
+
+        let filter = {};
+        if (date) {
+            const startOfDay = new Date(date);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(startOfDay);
+            endOfDay.setHours(23, 59, 59, 999);
+            filter.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+
+        const totalSales = await Sales.countDocuments(filter); 
+        const sales = await Sales.find(filter)
+            .populate('product', 'name _id')  
+            .skip((page - 1) * limit)  
+            .limit(limit); 
+
+        const totalPages = Math.ceil(totalSales / limit); 
+
+        res.status(200).json({ sales, totalPages, currentPage: page });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
+
+
 const getSale = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const sale = await Sales.findById(id).populate('product');
+        const sale = await Sales.findById(id).populate('product', 'name _id');  
         if (!sale) {
             return res.status(404).json({ error: 'Sale not found' });
         }
@@ -69,6 +89,8 @@ const getSale = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+
 
 
 const updateSale = async (req, res) => {
