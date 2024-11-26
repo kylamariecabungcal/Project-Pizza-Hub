@@ -1,0 +1,53 @@
+body{
+    background: linear-gradient(
+        to bottom,
+        #292828,
+        #3C9555
+    );
+    height: 100vh;
+    width: 100%;
+}
+.img{
+    position: absolute;
+    margin-left: 190px;
+    margin-top: 230px;
+    width: 300px;
+}
+.main{
+    position: absolute;
+    margin-left: 950px;
+    margin-top: 160px;
+    padding: 30px 50px 100px 50px;
+    border-radius: 50px;
+    border: #292828 solid;
+    background: linear-gradient(
+        to bottom,
+        #292828,
+        #3C9555
+    );
+    height: 500px;
+    width: 380px;
+}
+.logs{
+    width: 50px;
+    margin-left: 107px;
+    margin-top: 1px;
+}
+.pass{
+    border-radius: 7px;
+    padding: 5px;
+}
+.email{
+    border-radius: 7px;
+    margin-bottom: 13px;
+    padding: 5px 5px 5px 10px;
+}
+.btn{
+    width: 270px;
+    background-color: black;
+}
+.forgot{
+    text-decoration: none;
+    color: white;
+    margin-left: 30px;
+}

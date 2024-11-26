@@ -8,31 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.css" rel="stylesheet">
     <title>Products</title>
-    <link rel="stylesheet" href="/frontend/css/point-of-sale.css">
-    <style>
-        .table-container {
-            overflow-x: auto;
-        }
-
-        .pagination {
-            margin-top: 20px;
-        }
-
-        .table th,
-        .table td {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .action-icons {
-            font-size: 18px;
-        }
-
-        .action-icons i {
-            margin-right: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="">
 </head>
 
 <body>
@@ -60,7 +36,7 @@
                             </a>
                         </li>
                         <li class="nav-item py-2 py-sm-0 my-3">
-                            <a href="point-of-sale.html" class="nav-link text-white">
+                            <a href="point-of-sale.html" class="nav-link  text-white">
                                 <i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i><span class="fs-5 ms-3 d-none d-sm-inline">Point of Sale</span>
                             </a>
                         </li>
@@ -86,89 +62,39 @@
                     </div>
                 </div>
             </div>
-
             <div class="col">
+
+                <h2 class="text-center mb-4 py-5" >Inventory Overview</h2>
                 <div class="container my-5">
-                    <h2 class="mb-4">Product List with Pagination</h2>
-                
                     <div class="table-container">
-                        <table class="table table-bordered table-striped">
-                            <thead>
+                        
+                        <table id="example" class="table table-bordered table-striped" >
+                            <thead class="table-dark">
                                 <tr>
                                     <th>Product ID</th>
                                     <th>Product Name</th>
                                     <th>Price</th>
-                                    <th>Stocks</th>
+                                    <th>Stock</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
+                                    <th>Action</th>
                                 </tr>
-                            </thead>
-                            <tbody id="productTableBody">
-                            
-                                <tr>
-                                    <td>1</td>
-                                    <td>Margherita Pizza</td>
-                                    <td>$8.99</td>
-                                    <td>50</td>
-                                    <td><span class="badge bg-success">In Stock</span></td>
-                                    <td class="action-icons">
-                                        <a href="#" class="text-warning"><i class="fa-solid fa-pen"></i></a>
-                                        <a href="#" class="text-danger"><i class="fa-solid fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Pepperoni Pizza</td>
-                                    <td>$9.99</td>
-                                    <td>0</td>
-                                    <td><span class="badge bg-danger">Out of Stock</span></td>
-                                    <td class="action-icons">
-                                        <a href="#" class="text-warning"><i class="fa-solid fa-pen"></i></a>
-                                        <a href="#" class="text-danger"><i class="fa-solid fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Vegetarian Pizza</td>
-                                    <td>$7.99</td>
-                                    <td>20</td>
-                                    <td><span class="badge bg-success">In Stock</span></td>
-                                    <td class="action-icons">
-                                        <a href="#" class="text-warning"><i class="fa-solid fa-pen"></i></a>
-                                        <a href="#" class="text-danger"><i class="fa-solid fa-trash"></i></a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>BBQ Chicken Pizza</td>
-                                    <td>$10.99</td>
-                                    <td>0</td>
-                                    <td><span class="badge bg-danger">Out of Stock</span></td>
-                                    <td class="action-icons">
-                                        <a href="#" class="text-warning"><i class="fa-solid fa-pen"></i></a>
-                                        <a href="#" class="text-danger"><i class="fa-solid fa-trash"></i></a>
-                                    </td>
-                                </tr>
+                            </thead>                            
+                            <tbody>
+                                <!-- DITO PAPASOK ANG INVENTORY DATA -->
                             </tbody>
                         </table>
                     </div>
-        
-    
-                    <nav>
-                        <ul class="pagination justify-content-center" id="pagination">
-                            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                        </ul>
-                    </nav>
-                </div>
+                </div>                
             </div>
+         
+            
         </div>
     </div>
 
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.js"></script>
+    <script src="/frontend/script/inventory.js"></script>
 
 </body>
 
