@@ -48,6 +48,27 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+
+const getUser = async (req, res) => {
+    try {
+        // Assuming the user ID is passed as a URL parameter (e.g., /users/:id)
+        const { id } = req.params;
+
+        // Find the user by ID and exclude the password field
+        const user = await User.findById(id, { password: 0 });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to retrieve user." });
+    }
+};
+
+
 const deleteUser = async (req, res) => {
     const { id } = req.params;
 
@@ -103,4 +124,4 @@ const updateUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, getAllUsers, deleteUser, updateUser };
+module.exports = { registerUser, getAllUsers, deleteUser, updateUser, getUser };
