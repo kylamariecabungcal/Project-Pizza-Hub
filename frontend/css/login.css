@@ -15,18 +15,28 @@ body{
 }
 .main{
     position: absolute;
-    margin-left: 950px;
+    margin-left: 250px;
     margin-top: 160px;
     padding: 30px 50px 100px 50px;
     border-radius: 50px;
     border: #292828 solid;
-    background: linear-gradient(
+    background: transparent;
+    backdrop-filter: blur(100px);
+    /* background: linear-gradient(
         to bottom,
         #292828,
         #3C9555
-    );
+    ); */
     height: 500px;
-    width: 380px;
+    width: 980px;
+}
+.form{
+    margin-left: 550px;
+    margin-top: 180px;
+}
+.forms{
+    margin-top: -155px;
+    margin-left: -145px;
 }
 .logs{
     width: 50px;

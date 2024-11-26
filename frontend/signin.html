@@ -8,15 +8,16 @@
     <title>Document</title>
 </head>
 <body>
-    <img src="images/logo.png" class="img ">
-
+    
     <div class="main text-light">
-        
-        <img src="images/logo.png" class="logs" alt="">
-        <h4>Log in to your account</h4>
-        <p class="fw-light">Welcome back! Please enter your details</p>
-        <form action="dashboard.html">
-            <label for="Email" class="l1">Username</label>
+        <div class="forms">
+            <img src="images/logo.png" class="img ">
+        </div>
+        <div class="form">
+            <h4 class="ms-4">Create your account</h4>
+            <p class="fw-light">Welcome back! Please enter your details</p>
+            <form action="dashboard.html">
+                <label for="Email" class="l1">Username</label>
             <br>
             <input type="text" class="email" size="30" placeholder="Enter your username">
             <br>
@@ -27,17 +28,18 @@
             <label for="Password" class="l2" placeholder="Enter your Password">Password</label>
             <br>
             <input type="password" class="pass" size="31">
-            <br>
-            <br>
-            <div class="d-grid gap-2 col-6 col-lg-10 ms-1">
-                <a class="btn btn-dark text-light" type="button" href="/frontend/index.html">Sign In</a>
-            </div>
-            <div>
-                <small>Already have an account?</small>
-                <a href="login.html">Log in</a>
-            </div>
-            
-        </form>
+                    <br>
+                <br>
+                <div class="sign d-grid gap-2 col-6 col-lg-10 ms-1">
+                    <a class="sign btn btn-dark text-light" type="button" href="/frontend/login.html">Sign In</a>
+                </div>
+                <div class="mt-2 ms-4">
+                    <small>Already have an account?</small>
+                    <a href="/frontend/login.html">Log in</a>
+                </div>
+                
+            </form>
+        </div>
 
 
     </div>

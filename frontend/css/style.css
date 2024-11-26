@@ -2,6 +2,10 @@
     display: inline;
     -webkit-text-stroke: 1.5px black;
 }
+/* body{
+    overflow-x: hidden;
+} */
+ 
 .logo{
     width: 49px;
     margin-left: 30px;
@@ -27,7 +31,7 @@ header{
     width: 223px;
 }
 body{
-    background-color: #f1f2f5;
+    background-color: #e7eaee;
     display: flex;
     flex-direction: column;
     height: 100vh;
