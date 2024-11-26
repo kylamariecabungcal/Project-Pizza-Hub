@@ -2,62 +2,62 @@ document.addEventListener('DOMContentLoaded', () => {
     const salesTableBody = document.querySelector('#salesTable');
     const dateInput = document.getElementById('date');
     const paginationContainer = document.getElementById('paginationContainer');
-    const loadingMessage = document.getElementById('loadingMessage'); 
+    const loadingMessage = document.getElementById('loadingMessage');
 
     const itemsPerPage = 10;
     let currentPage = 1;
 
-    
     const showLoading = () => {
         if (loadingMessage) {
-            loadingMessage.style.display = 'block'; 
+            loadingMessage.style.display = 'block';
         }
     };
 
-   
     const hideLoading = () => {
         if (loadingMessage) {
-            loadingMessage.style.display = 'none'; 
+            loadingMessage.style.display = 'none';
         }
     };
 
+    
     const getSalesData = async (date = '', page = 1, limit = 10) => {
         try {
-           
             const formattedDate = date ? date.split('T')[0] : ''; 
-            
-            
             const url = new URL('http://localhost:4000/api/sale');
+            
             if (formattedDate) {
-                url.searchParams.append('date', formattedDate);
+                url.searchParams.append('date', formattedDate);  
             }
             url.searchParams.append('page', page);
             url.searchParams.append('limit', limit);
-
-            console.log(`Request URL: ${url.toString()}`); 
-
+    
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-
+    
             const result = await response.json();
-
-            console.log('Filtered sales data:', result); 
-
-            return result;
+            if (Array.isArray(result.sales) && result.sales.length > 0) {
+                return {
+                    sales: result.sales,   
+                    totalSalesCount: result.totalSalesCount || result.totalSales || 0, 
+                };
+            } else {
+                return { sales: [], totalSalesCount: 0 };
+            }
         } catch (err) {
             console.error('Error fetching sales data:', err);
-            return null;
+            return { sales: [], totalSalesCount: 0 };
         }
     };
 
-
+    
     const createSalesTableRow = (saleItem) => {
         const row = document.createElement('tr');
 
         const dateCell = document.createElement('td');
-        dateCell.innerText = new Date(saleItem.date).toLocaleDateString();
+        const saleDate = new Date(saleItem.date); 
+        dateCell.innerText = saleDate.toLocaleDateString(); 
 
         const productIdCell = document.createElement('td');
         const productId = saleItem.product ? saleItem.product._id : 'N/A';
@@ -71,26 +71,41 @@ document.addEventListener('DOMContentLoaded', () => {
         quantitySoldCell.innerText = saleItem.quantity;
 
         const salesAmountCell = document.createElement('td');
-        salesAmountCell.innerText = `₱${saleItem.totalPrice.toFixed(2)}`; 
+        salesAmountCell.innerText = `₱${saleItem.totalPrice.toFixed(2)}`;
 
         row.append(dateCell, productIdCell, productNameCell, quantitySoldCell, salesAmountCell);
 
         return row;
     };
 
-    
     const updateSalesTable = (salesData) => {
-        salesTableBody.innerHTML = '';
+        salesTableBody.innerHTML = ''; 
+        
         if (salesData.length > 0) {
+            let totalSalesAmount = 0;
+
             salesData.forEach(saleItem => {
                 const row = createSalesTableRow(saleItem);
                 salesTableBody.appendChild(row);
+                totalSalesAmount += saleItem.totalPrice;  
             });
+
+    
+            const totalRow = document.createElement('tr');
+            const totalCell = document.createElement('td');
+            totalCell.colSpan = 4;  
+            totalCell.innerText = 'Total Sales:';
+            totalRow.appendChild(totalCell);
+
+            const totalAmountCell = document.createElement('td');
+            totalAmountCell.innerText = `₱${totalSalesAmount.toFixed(2)}`;
+            totalRow.appendChild(totalAmountCell);
+
+            salesTableBody.appendChild(totalRow);  
         } else {
-     
             const row = document.createElement('tr');
             const cell = document.createElement('td');
-            cell.colSpan = 5; 
+            cell.colSpan = 5;
             cell.innerText = 'No sales found for the selected date';
             row.appendChild(cell);
             salesTableBody.appendChild(row);
@@ -98,7 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     
-    const updatePagination = (totalPages, currentPage) => {
+    const updatePagination = (totalSalesCount, currentPage) => {
+        const totalPages = Math.ceil(totalSalesCount / itemsPerPage);
         paginationContainer.innerHTML = '';
 
         const prevButton = document.createElement('button');
@@ -120,32 +136,30 @@ document.addEventListener('DOMContentLoaded', () => {
         paginationContainer.append(prevButton, pageInfo, nextButton);
     };
 
-
     const loadSalesData = (page = 1) => {
-        const selectedDate = dateInput.value; 
-        console.log('Selected Date:', selectedDate); 
+        const selectedDate = dateInput.value;
+        showLoading();
 
-        showLoading(); 
-
-   
         getSalesData(selectedDate, page, itemsPerPage).then(result => {
-            hideLoading(); 
+            hideLoading();
 
-            if (result && Array.isArray(result)) {
-                const salesData = result; 
+            if (result && Array.isArray(result.sales)) {
+                const salesData = result.sales;
+                const totalSalesCount = result.totalSalesCount;
                 updateSalesTable(salesData);
+                updatePagination(totalSalesCount, page);
             } else {
-                console.error('Invalid data format:', result);
-                updateSalesTable([]); 
+                updateSalesTable([]);
             }
         }).catch(err => {
             console.error('Error loading sales data:', err);
             hideLoading();
-            updateSalesTable([]); 
+            updateSalesTable([]);
         });
     };
 
-    dateInput.addEventListener('change', () => loadSalesData(1)); 
+    
+    dateInput.addEventListener('change', () => loadSalesData(1));
 
     
     loadSalesData();
