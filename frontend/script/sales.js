@@ -52,55 +52,58 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     
-    const createSalesTableRow = (saleItem) => {
+    const createSalesTableRow = (saleItem, index) => {
         const row = document.createElement('tr');
-
+    
         const dateCell = document.createElement('td');
         const saleDate = new Date(saleItem.date); 
         dateCell.innerText = saleDate.toLocaleDateString(); 
-
+    
         const productIdCell = document.createElement('td');
-        const productId = saleItem.product ? saleItem.product._id : 'N/A';
+        const productId = index + 1;  
         productIdCell.innerText = productId;
-
+    
         const productNameCell = document.createElement('td');
         const productName = saleItem.product ? saleItem.product.name : 'Unknown Product';
         productNameCell.innerText = productName;
-
+    
         const quantitySoldCell = document.createElement('td');
         quantitySoldCell.innerText = saleItem.quantity;
-
+    
         const salesAmountCell = document.createElement('td');
         salesAmountCell.innerText = `₱${saleItem.totalPrice.toFixed(2)}`;
-
+    
         row.append(dateCell, productIdCell, productNameCell, quantitySoldCell, salesAmountCell);
-
+    
         return row;
     };
+    
 
     const updateSalesTable = (salesData) => {
         salesTableBody.innerHTML = ''; 
         
         if (salesData.length > 0) {
             let totalSalesAmount = 0;
-
-            salesData.forEach(saleItem => {
-                const row = createSalesTableRow(saleItem);
+    
+            
+            salesData.forEach((saleItem, index) => {
+                const row = createSalesTableRow(saleItem, index);  
                 salesTableBody.appendChild(row);
                 totalSalesAmount += saleItem.totalPrice;  
             });
-
     
+            
             const totalRow = document.createElement('tr');
+            
             const totalCell = document.createElement('td');
             totalCell.colSpan = 4;  
-            totalCell.innerText = 'Total Sales:';
+            totalCell.innerHTML = '<strong>Total Sales:</strong>';  
             totalRow.appendChild(totalCell);
-
+    
             const totalAmountCell = document.createElement('td');
             totalAmountCell.innerText = `₱${totalSalesAmount.toFixed(2)}`;
             totalRow.appendChild(totalAmountCell);
-
+    
             salesTableBody.appendChild(totalRow);  
         } else {
             const row = document.createElement('tr');
@@ -111,6 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
             salesTableBody.appendChild(row);
         }
     };
+    
+    
 
     
     const updatePagination = (totalSalesCount, currentPage) => {
