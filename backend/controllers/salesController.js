@@ -45,23 +45,62 @@ const getSales = async (req, res) => {
 
         let filter = {};
         if (date) {
-            const localDate = new Date(date); 
+
+            const localDate = new Date(date);
             const startOfDay = new Date(localDate.setHours(0, 0, 0, 0));
             const endOfDay = new Date(startOfDay);
-            endOfDay.setHours(23, 59, 59, 999); 
+            endOfDay.setHours(23, 59, 59, 999);
 
-            filter.date = { $gte: startOfDay, $lte: endOfDay }; 
+            filter.date = { $gte: startOfDay, $lte: endOfDay };
         }
 
-        const totalSales = await Sales.countDocuments(filter); 
+        const totalSalesPerDay = await Sales.aggregate([
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                    totalSalesAmount: { $sum: "$totalPrice" },
+                },
+            },
+            { $sort: { _id: -1 } },
+        ]);
+
+        const totalSalesPerPizzaPerDay = await Sales.aggregate([
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'product',
+                    foreignField: '_id',
+                    as: 'productInfo',
+                },
+            },
+            { $unwind: '$productInfo' },
+            {
+                $group: {
+                    _id: {
+                        pizza: '$productInfo.name',
+                        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                    },
+                    totalSalesAmount: { $sum: '$totalPrice' },
+                },
+            },
+            { $sort: { '_id.date': -1 } },
+        ]);
+
+        const totalPages = Math.ceil(totalSalesPerDay.length / limit);
+
         const sales = await Sales.find(filter)
-            .populate('product', 'name _id')  
-            .skip((page - 1) * limit)  
-            .limit(limit); 
+            .populate('product', 'name _id') // Populate product with only the necessary fields
+            .skip((page - 1) * limit)
+            .limit(limit);
 
-        const totalPages = Math.ceil(totalSales / limit); 
+        res.status(200).json({
+            sales,
+            totalSalesPerDay,
+            totalSalesPerPizzaPerDay,
+            totalPages,
+            currentPage: page,
+        });
 
-        res.status(200).json({ sales, totalPages, currentPage: page });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
@@ -72,7 +111,9 @@ const getSale = async (req, res) => {
     const { id } = req.params;     
 
     try {
-        const sale = await Sales.findById(id).populate('product', 'name _id');  
+
+        const sale = await Sales.findById(id).populate('product', 'name _id');
+
         if (!sale) {
             return res.status(404).json({ error: 'Sale not found' });
         }
@@ -103,15 +144,23 @@ const updateSale = async (req, res) => {
             return res.status(404).json({ error: `Product with ID ${productId} not found.` });
         }
 
+
+        // Restore the product stock from the previous sale before updating
+        const previousProduct = await Product.findById(sale.product);
+        if (previousProduct) {
+            previousProduct.stock += sale.quantity;
+            await previousProduct.save();
+        }
+
         const totalPrice = product.price * quantity;
 
-        
-        product.stock += sale.quantity; 
         if (product.stock < quantity) {
             return res.status(400).json({ error: `Not enough stock for product: ${product.name}` });
         }
-        product.stock -= quantity; 
-        await product.save(); 
+
+        product.stock -= quantity;
+        await product.save();
+
 
         sale.product = productId;
         sale.quantity = quantity;

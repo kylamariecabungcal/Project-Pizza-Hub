@@ -12,7 +12,7 @@ const createOrder = async (req, res) => {
 
     try {
         for (const item of orderDetails) {
-            const product = await Product.findById(item.productId);
+            const product = await Product.findById(item.productId);  
             if (!product) {
                 return res.status(404).json({ error: `Product with ID ${item.productId} not found.` });
             }
@@ -24,14 +24,12 @@ const createOrder = async (req, res) => {
                 return res.status(400).json({ error: `Not enough stock for product: ${product.name}` });
             }
 
-            
             product.stock -= item.quantity;
             await product.save();
 
-           
             const inventory = await Inventory.findOne({ product: item.productId });
             if (inventory) {
-                inventory.stock -= item.quantity; 
+                inventory.stock -= item.quantity;
                 await inventory.save();
             }
 
@@ -55,10 +53,10 @@ const createOrder = async (req, res) => {
 
         res.status(201).json(order);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
-
 
 const getOrders = async (req, res) => {
     try {
@@ -68,7 +66,6 @@ const getOrders = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 const getOrder = async (req, res) => {
     const { id } = req.params;
@@ -85,7 +82,6 @@ const getOrder = async (req, res) => {
     }
 };
 
-
 const updateOrder = async (req, res) => {
     const { id } = req.params;
     const { orderDetails, totalAmount } = req.body;
@@ -95,19 +91,16 @@ const updateOrder = async (req, res) => {
     }
 
     try {
-        
         for (const item of orderDetails) {
             const product = await Product.findById(item.productId);
             if (!product) {
                 return res.status(404).json({ error: `Product with ID ${item.productId} not found.` });
             }
 
-            
             item.price = product.price;
             item.total = item.quantity * item.price;
         }
 
-        
         const updatedOrder = await Order.findByIdAndUpdate(
             id,
             { orderDetails, totalAmount, orderDate: Date.now() },
