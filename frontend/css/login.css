@@ -1,53 +1,75 @@
-body{
-    background: linear-gradient(
-        to bottom,
-        #292828,
-        #3C9555
-    );
-    height: 100vh;
+body {
+    background-image: url('/frontend/images/sign.jpg'); /* Replace with your image path */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0;
+}
+
+.main {
+    background: rgba(255, 255, 255, 0.3); /* Semi-transparent white background */
+    backdrop-filter: blur(10px); /* Frosted glass effect */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
     width: 100%;
+    color: white; /* White text for contrast */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Optional subtle border */
 }
-.img{
-    position: absolute;
-    margin-left: 190px;
-    margin-top: 230px;
-    width: 300px;
+
+.main img {
+    display: block;
+    margin: 0 auto 20px;
+    width: 150px;
+    height: auto;
 }
-.main{
-    position: absolute;
-    margin-left: 950px;
-    margin-top: 160px;
-    padding: 30px 50px 100px 50px;
-    border-radius: 50px;
-    border: #292828 solid;
-    background: linear-gradient(
-        to bottom,
-        #292828,
-        #3C9555
-    );
-    height: 500px;
-    width: 380px;
+
+.main h4 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #007bff;
 }
-.logs{
-    width: 50px;
-    margin-left: 107px;
-    margin-top: 1px;
+
+.main p {
+    text-align: center;
+    margin-bottom: 30px;
 }
-.pass{
-    border-radius: 7px;
-    padding: 5px;
+
+.form-label {
+    font-weight: 500;
+    color: white; /* Ensuring the label text contrasts with the background */
 }
-.email{
-    border-radius: 7px;
-    margin-bottom: 13px;
-    padding: 5px 5px 5px 10px;
+
+.form-control {
+    border-radius: 5px;
+    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.7); /* Slightly transparent input fields */
+    color: black;
 }
-.btn{
-    width: 270px;
-    background-color: black;
+
+.form-control:focus {
+    border-color: #007bff;
+    background-color: rgba(255, 255, 255, 0.9);
 }
-.forgot{
-    text-decoration: none;
-    color: white;
-    margin-left: 30px;
+
+.btn-primary {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
 }
