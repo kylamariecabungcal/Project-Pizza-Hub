@@ -107,7 +107,12 @@ const pieConfig = {
         responsive: true,
         plugins: {
             legend: {
-                position: 'top', // Legend position (top, left, bottom, right)
+                position: 'left', // Legend position (top, left, bottom, right)
+                labels: {
+                    boxWidth: 20, // Width of the color box
+                    padding: 10,  // Space between legend items
+                    usePointStyle: true, // Makes the legend items use a circular point style
+                },
             },
             tooltip: {
                 enabled: true
