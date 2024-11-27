@@ -27,7 +27,7 @@ header{
     width: 223px;
 }
 body{
-    background-color: #f1f2f5;
+    background-color: #e7eaee;
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -45,3 +45,4 @@ body{
     max-width: 500px; 
     width: 100%;
 }
+

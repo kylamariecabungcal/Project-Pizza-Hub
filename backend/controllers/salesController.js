@@ -45,6 +45,7 @@ const getSales = async (req, res) => {
 
         let filter = {};
         if (date) {
+
             const localDate = new Date(date);
             const startOfDay = new Date(localDate.setHours(0, 0, 0, 0));
             const endOfDay = new Date(startOfDay);
@@ -99,6 +100,7 @@ const getSales = async (req, res) => {
             totalPages,
             currentPage: page,
         });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
@@ -106,10 +108,12 @@ const getSales = async (req, res) => {
 };
 
 const getSale = async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params;     
 
     try {
+
         const sale = await Sales.findById(id).populate('product', 'name _id');
+
         if (!sale) {
             return res.status(404).json({ error: 'Sale not found' });
         }
@@ -140,6 +144,7 @@ const updateSale = async (req, res) => {
             return res.status(404).json({ error: `Product with ID ${productId} not found.` });
         }
 
+
         // Restore the product stock from the previous sale before updating
         const previousProduct = await Product.findById(sale.product);
         if (previousProduct) {
@@ -156,7 +161,7 @@ const updateSale = async (req, res) => {
         product.stock -= quantity;
         await product.save();
 
-        // Update sale with new details
+
         sale.product = productId;
         sale.quantity = quantity;
         sale.totalPrice = totalPrice;

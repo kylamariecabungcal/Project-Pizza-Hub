@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+
+const userRoutes = require("./routes/user");
 const productsRoutes = require('./routes/Products');
 const inventoryRoutes = require('./routes/inventory');
 const orderRoutes = require('./routes/order')
@@ -14,6 +16,9 @@ app.use(bodyParser.json());
 app.use(express.static('public'));  
 app.use('/uploads', express.static('uploads')); 
 
+
+app.use('/api/products', productsRoutes);
+app.use("/api/users", userRoutes);
 app.use('/api/inventories', inventoryRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/sale', saleRoutes);
@@ -32,5 +37,3 @@ mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
         console.error('Failed to connect to MongoDB:', error.message);
     });
 
-
-app.use('/api/products', productsRoutes);
