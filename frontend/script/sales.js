@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    
     const getSalesData = async (date = '', page = 1, limit = 10) => {
         try {
             const formattedDate = date ? date.split('T')[0] : ''; 
@@ -51,8 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    
-    const createSalesTableRow = (saleItem, index) => {
+    const createSalesTableRow = (saleItem, index, currentPage) => {
         const row = document.createElement('tr');
     
         const dateCell = document.createElement('td');
@@ -60,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         dateCell.innerText = saleDate.toLocaleDateString(); 
     
         const productIdCell = document.createElement('td');
-        const productId = index + 1;  
-        productIdCell.innerText = productId;
+        const globalIndex = (currentPage - 1) * itemsPerPage + index + 1;  
+        productIdCell.innerText = globalIndex;
     
         const productNameCell = document.createElement('td');
         const productName = saleItem.product ? saleItem.product.name : 'Unknown Product';
@@ -77,24 +75,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
         return row;
     };
-    
 
     const updateSalesTable = (salesData) => {
         salesTableBody.innerHTML = ''; 
         
         if (salesData.length > 0) {
             let totalSalesAmount = 0;
-    
-            
             salesData.forEach((saleItem, index) => {
-                const row = createSalesTableRow(saleItem, index);  
+                const row = createSalesTableRow(saleItem, index, currentPage);  
                 salesTableBody.appendChild(row);
                 totalSalesAmount += saleItem.totalPrice;  
             });
     
-            
             const totalRow = document.createElement('tr');
-            
             const totalCell = document.createElement('td');
             totalCell.colSpan = 4;  
             totalCell.innerHTML = '<strong>Total Sales:</strong>';  
@@ -114,10 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             salesTableBody.appendChild(row);
         }
     };
-    
-    
 
-    
     const updatePagination = (totalSalesCount, currentPage) => {
         const totalPages = Math.ceil(totalSalesCount / itemsPerPage);
         paginationContainer.innerHTML = '';
@@ -143,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadSalesData = (page = 1) => {
         const selectedDate = dateInput.value;
+        currentPage = page; 
         showLoading();
 
         getSalesData(selectedDate, page, itemsPerPage).then(result => {
@@ -163,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    
     dateInput.addEventListener('change', () => loadSalesData(1));
 
     

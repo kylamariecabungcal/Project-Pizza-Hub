@@ -1,128 +1,167 @@
-// Define the labels (pizza flavors) for the Line chart
-const labels = [
-    'Cheese',
-    'Pepperoni',
-    'Hawaiian',
-    'Beef Deluxe',
-    'Creamy Spinach',
-    'Ham & Bacon',
-    'Beef Supreme',
-    'Chicken Alfredo',
-    'Triple Pepperoni'
-];
+document.addEventListener('DOMContentLoaded', function () {
+    async function fetchSalesData() {
+        const response = await fetch('http://localhost:4000/api/sale');
+        const data = await response.json();
 
-// Define the data for the Line chart
-const data = {
-    labels: labels,
-    datasets: [{
-        label: 'Pizza Flavor Popularity',
-        data: [75, 90, 60, 50, 70, 85, 80, 65, 95], // Example data for each flavor
-        fill: true, // Enable shading under the line
-        borderColor: 'rgb(255, 205, 86)', // Yellow color for the line
-        backgroundColor: 'rgba(255, 205, 86, 0.2)', // Light yellow for the shading
-        tension: 0.1 // Curve tension for smooth lines
-    }]
-};
-
-// Define the configuration for the Line chart
-const config = {
-    type: 'line',
-    data: data,
-    options: {
-        responsive: true,  // Ensure chart is responsive
-        maintainAspectRatio: false,  // Allow chart to break aspect ratio
-        plugins: {
-            legend: {
-                display: true,
-                position: 'top'
-            }
-        },
-        scales: {
-            x: {
-                ticks: {
-                    autoSkip: true, // Automatically skips some ticks if they overlap
-                    maxRotation: 0, // Keeps the x-axis labels horizontal
-                    minRotation: 0
-                },
-                min: 0,
-                max: labels.length - 1
-            },
-            y: {
-                beginAtZero: true // Ensures the y-axis starts at zero
-            }
+        if (response.ok) {
+            const salesData = processSalesData(data.totalSalesPerDay);
+            renderSalesChart(salesData);
+            
+            const pizzaSalesData = processPizzaSalesData(data.totalSalesPerPizzaPerDay);
+            renderPieChart(pizzaSalesData);
+        } else {
+            console.error('Error fetching sales data:', data.error);
         }
     }
-};
 
-// Initialize the Line chart
-const myChart = new Chart(
-    document.getElementById('myChart'), // Connect to the line chart canvas element
-    config
-);
+    function processSalesData(sales) {
+        const salesByDay = {};
 
-// Define the labels (pizza flavors) for the Pie chart
-const pieLabels = [
-    'Cheese', 'Pepperoni', 'Hawaiian', 'Beef Deluxe', 
-    'Creamy Spinach', 'Ham & Bacon', 'Beef Supreme', 
-    'Chicken Alfredo', 'Triple Pepperoni'
-];
+        sales.forEach(sale => {
+            const saleDate = sale._id;
+            const saleInPHP = sale.totalSalesAmount;
 
-// Define the data for the Pie chart
-const pieData = {
-    labels: pieLabels,
-    datasets: [{
-        label: 'Pizza Flavor Popularity',
-        data: [120, 150, 100, 80, 90, 110, 130, 140, 160], // Example popularity data
-        backgroundColor: [
-            'rgba(255, 99, 132, 0.8)',  // Red
-            'rgba(54, 162, 235, 0.8)',  // Blue
-            'rgba(255, 206, 86, 0.8)',  // Yellow
-            'rgba(75, 192, 192, 0.8)',  // Green
-            'rgba(153, 102, 255, 0.8)', // Purple
-            'rgba(255, 159, 64, 0.8)',  // Orange
-            'rgba(199, 199, 199, 0.8)', // Grey
-            'rgba(100, 255, 100, 0.8)', // Light Green
-            'rgba(255, 128, 192, 0.8)'  // Pink
-        ],
-        borderColor: [
-            'rgba(255, 99, 132, 1)',    // Red
-            'rgba(54, 162, 235, 1)',    // Blue
-            'rgba(255, 206, 86, 1)',    // Yellow
-            'rgba(75, 192, 192, 1)',    // Green
-            'rgba(153, 102, 255, 1)',   // Purple
-            'rgba(255, 159, 64, 1)',    // Orange
-            'rgba(199, 199, 199, 1)',   // Grey
-            'rgba(100, 255, 100, 1)',   // Light Green
-            'rgba(255, 128, 192, 1)'    // Pink
-        ],
-        borderWidth: 1
-    }]
-};
-
-// Define the configuration for the Pie chart
-const pieConfig = {
-    type: 'pie',
-    data: pieData,
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'left', // Legend position (top, left, bottom, right)
-                labels: {
-                    boxWidth: 20, // Width of the color box
-                    padding: 10,  // Space between legend items
-                    usePointStyle: true, // Makes the legend items use a circular point style
-                },
-            },
-            tooltip: {
-                enabled: true
+            if (salesByDay[saleDate]) {
+                salesByDay[saleDate] += saleInPHP;
+            } else {
+                salesByDay[saleDate] = saleInPHP;
             }
-        }
-    }
-};
+        });
 
-// Initialize the Pie chart
-const myPieChart = new Chart(
-    document.getElementById('pieChart'),
-    pieConfig
-);
+        const days = Object.keys(salesByDay);
+        const totalSales = Object.values(salesByDay);
+
+        const sortedDays = days.sort((a, b) => new Date(a) - new Date(b));
+        const sortedSales = sortedDays.map(day => salesByDay[day]);
+
+        return { days: sortedDays, totalSales: sortedSales };
+    }
+
+    function processPizzaSalesData(pizzaSales) {
+        const pizzaSalesByDay = {};
+
+        pizzaSales.forEach(sale => {
+            const pizzaName = sale._id.pizza;
+            const saleInPHP = sale.totalSalesAmount;
+            const saleDate = sale._id.date;
+
+            if (!pizzaSalesByDay[saleDate]) {
+                pizzaSalesByDay[saleDate] = {};
+            }
+
+            if (pizzaSalesByDay[saleDate][pizzaName]) {
+                pizzaSalesByDay[saleDate][pizzaName] += saleInPHP;
+            } else {
+                pizzaSalesByDay[saleDate][pizzaName] = saleInPHP;
+            }
+        });
+
+        return pizzaSalesByDay;
+    }
+
+    function renderSalesChart(salesData) {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: salesData.days,
+                datasets: [{
+                    label: 'Total Sales (in PHP)',
+                    data: salesData.totalSales,
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.2)',
+                    fill: true,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#4e73df',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        },
+                        grid: {
+                            display: true
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Total Sales (PHP)'
+                        },
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₱' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return '₱' + tooltipItem.raw.toLocaleString();
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    }
+
+    function renderPieChart(pizzaSalesData) {
+        const latestDay = Object.keys(pizzaSalesData)[0];
+        const pizzaSales = pizzaSalesData[latestDay];
+
+        const pizzaNames = Object.keys(pizzaSales);
+        const salesAmounts = Object.values(pizzaSales);
+
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: pizzaNames,
+                datasets: [{
+                    data: salesAmounts,
+                    backgroundColor: [
+                        '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#FFC300', 
+                        '#8E44AD', '#1ABC9C', '#F39C12', '#E74C3C'
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return '₱' + tooltipItem.raw.toLocaleString();
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    }
+
+    fetchSalesData();
+});

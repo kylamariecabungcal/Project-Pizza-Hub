@@ -1,0 +1,54 @@
+body {
+    background-color: #e7eaee;
+    color: red; 
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.monitor1 {
+    width: 80%;
+    max-width: 100%;
+    padding: 0 15px;
+    box-sizing: border-box;
+    display: block;
+    height: auto;
+    margin-left: 45px;
+    margin-top: 20px;
+}
+
+.monitor2 {
+    width: 45%; 
+    max-width: 100%;
+    padding: 0 15px;
+    box-sizing: border-box;
+    display: block;
+    height: auto;
+    margin-left: 570px;
+    margin-top: 20px;
+}
+
+#myChart {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    display: block;
+    margin: 0 auto;
+}
+
+#pieChart {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    display: block;
+    margin: 0 auto;
+    margin-top: -10px;
+}
+.dropdown{
+    margin-bottom: 60px;
+}
+.main {
+    max-height: 700px; 
+    overflow-y: auto; 
+    overflow-x: hidden;
+    padding-right: 10px;    
+}
