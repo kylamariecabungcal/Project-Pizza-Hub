@@ -37,40 +37,6 @@ const sendData = async (data) => {
     }
 };
 
-const addProductCard = (product) => {
-    const col = document.createElement('div');
-    const card = document.createElement('div');
-    const cardBody = document.createElement('div');
-    const img = document.createElement('img');
-    const h5 = document.createElement('h5');
-    const p = document.createElement('p');
-    const button = document.createElement('button');
-
-    col.classList.add('col-sm-3', 'mb-4');
-    card.classList.add('card', 'product-card');
-    cardBody.classList.add('card-body', 'text-center');
-    
-    img.src = product.image;
-    img.classList.add('img-fluid', 'pizza');
-    img.alt = "Product Image";
-    h5.classList.add('card-title', 'text-white');
-    p.classList.add('card-text', 'text-white');
-    button.classList.add('btn', 'btn-order');
-
-    h5.innerText = product.productName;
-    p.innerText = `₱${product.price}`;
-    button.innerText = 'Buy Now';
-
-    cardBody.appendChild(img);
-    cardBody.appendChild(h5);
-    cardBody.appendChild(p);
-    cardBody.appendChild(button);
-    card.appendChild(cardBody);
-    col.appendChild(card);
-
-    productList.appendChild(col);
-};
-
 const updateStockOnServer = async (inventoryId, updatedStock) => {
     console.log("Inventory ID being sent to server:", inventoryId);
 
@@ -311,6 +277,178 @@ const getInventoryData = async () => {
         console.error('Error fetching inventory data:', err);
     }
 };
+
+const editProduct = async (inventoryId) => {
+    const productToEdit = allProducts.find(item => item.inventoryId === inventoryId);
+
+    if (!productToEdit) {
+        console.error("Product not found");
+        Swal.fire({
+            icon: 'error',
+            title: 'Product Not Found',
+            text: 'The product could not be found for editing.',
+        });
+        return;
+    }
+
+    const productNameElement = document.getElementById('editProductName');
+    const productPriceElement = document.getElementById('editProductPrice');
+    const productImageElement = document.getElementById('editProductImage');
+    const productStockElement = document.getElementById('editStock');
+
+    if (productNameElement && productPriceElement && productImageElement && productStockElement) {
+        productNameElement.value = productToEdit.product.name;
+        productPriceElement.value = productToEdit.product.price;
+        productStockElement.value = productToEdit.stock;
+
+       
+        document.getElementById('editProductId').value = productToEdit.inventoryId;
+
+    
+        const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+        modal.show();
+    } else {
+        console.error("One or more form elements are missing.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Form Error',
+            text: 'The required form elements are missing or could not be found.',
+        });
+    }
+};
+
+
+
+const saveProductEdits = async () => {
+    const inventoryId = document.getElementById('editProductId').value;
+    const productNameElement = document.getElementById('editProductName');
+    const productPriceElement = document.getElementById('editProductPrice');
+    const productStockElement = document.getElementById('editStock');
+    const productImageElement = document.getElementById('editProductImage');
+
+    const updatedProduct = {
+        inventoryId: inventoryId,
+        name: productNameElement.value.trim(),
+        price: parseFloat(productPriceElement.value),
+        stock: parseInt(productStockElement.value),
+        image: productImageElement.files[0], 
+    };
+
+   
+    if (!updatedProduct.name || isNaN(updatedProduct.price) || isNaN(updatedProduct.stock) || !updatedProduct.image) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Missing Fields',
+            text: 'Please fill in all required fields correctly.',
+        });
+        return;
+    }
+
+  
+    try {
+        const formData = new FormData();
+        formData.append('image', updatedProduct.image);
+        formData.append('name', updatedProduct.name);
+        formData.append('price', updatedProduct.price);
+        formData.append('stock', updatedProduct.stock);
+
+        const response = await fetch(`http://localhost:4000/api/inventories/${inventoryId}`, {
+            method: 'PATCH', 
+            body: formData,
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+        
+            allProducts = allProducts.map(item => 
+                item.inventoryId === updatedProduct.inventoryId ? { ...item, ...result.product, stock: updatedProduct.stock } : item
+            );
+            updateInventoryTable(allProducts);
+
+            
+            $('#editProductModal').modal('hide');
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Product Updated Successfully',
+                text: 'The product has been updated successfully.',
+            });
+        } else {
+            throw new Error('Failed to update product');
+        }
+    } catch (error) {
+        console.error("Error updating product:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error Updating Product',
+            text: 'There was an error updating the product. Please try again.',
+        });
+    }
+};
+
+
+const closeEditModal = () => {
+    const productNameElement = document.getElementById('editProductName');
+    const productPriceElement = document.getElementById('editProductPrice');
+    const productStockElement = document.getElementById('editStock');
+    const productImageElement = document.getElementById('editProductImage');
+    
+    productNameElement.value = '';
+    productPriceElement.value = '';
+    productStockElement.value = '';
+    productImageElement.value = '';  
+};
+
+
+const editProductForm = document.getElementById('editProductForm');
+editProductForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveProductEdits();
+});
+
+
+const deleteProduct = async (inventoryId) => {
+    const confirmation = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to delete this product?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel!',
+    });
+
+    if (!confirmation.isConfirmed) return;
+
+    try {
+        const response = await fetch(`http://localhost:4000/api/inventories/${inventoryId}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            allProducts = allProducts.filter(item => item.inventoryId !== inventoryId);
+            updateInventoryTable(allProducts); 
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Product Deleted Successfully',
+                text: 'The product has been deleted.',
+            });
+        } else {
+            throw new Error('Failed to delete product');
+        }
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error Deleting Product',
+            text: 'There was an error deleting the product. Please try again.',
+        });
+    }
+};
+
+
+getInventoryData();
+
 
 getInventoryData().then(result => {
     if (result && result.length) {
