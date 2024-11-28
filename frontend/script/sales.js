@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationContainer = document.getElementById('paginationContainer');
     const loadingMessage = document.getElementById('loadingMessage');
 
-    const itemsPerPage = 10;
+    const itemsPerPage = 10; 
     let currentPage = 1;
 
     const showLoading = () => {
@@ -110,25 +110,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updatePagination = (totalSalesCount, currentPage) => {
         const totalPages = Math.ceil(totalSalesCount / itemsPerPage);
-        paginationContainer.innerHTML = '';
+        paginationContainer.innerHTML = '';  
 
+        
         const prevButton = document.createElement('button');
-        prevButton.classList.add('btn', 'btn-secondary', 'me-2');
+        prevButton.classList.add('btn', 'btn-sm', 'btn-primary');
         prevButton.innerText = 'Previous';
         prevButton.disabled = currentPage === 1;
-        prevButton.onclick = () => loadSalesData(currentPage - 1);
+        prevButton.addEventListener('click', () => loadSalesData(currentPage - 1));
 
+        paginationContainer.appendChild(prevButton);
+
+        
+        const maxPageButtons = 5;  
+        const halfRange = Math.floor(maxPageButtons / 2);
+        let startPage = Math.max(currentPage - halfRange, 1);
+        let endPage = Math.min(startPage + maxPageButtons - 1, totalPages);
+
+        
+        if (endPage - startPage + 1 < maxPageButtons) {
+            startPage = Math.max(endPage - maxPageButtons + 1, 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.innerText = i;
+            pageButton.classList.add('btn', 'btn-sm', 'btn-secondary', 'mx-1');
+            pageButton.disabled = currentPage === i;
+            pageButton.addEventListener('click', () => loadSalesData(i));
+            paginationContainer.appendChild(pageButton);
+        }
+
+        
         const nextButton = document.createElement('button');
-        nextButton.classList.add('btn', 'btn-secondary');
+        nextButton.classList.add('btn', 'btn-sm', 'btn-primary');
         nextButton.innerText = 'Next';
         nextButton.disabled = currentPage === totalPages;
-        nextButton.onclick = () => loadSalesData(currentPage + 1);
+        nextButton.addEventListener('click', () => loadSalesData(currentPage + 1));
 
-        const pageInfo = document.createElement('span');
-        pageInfo.classList.add('mx-3');
-        pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
-
-        paginationContainer.append(prevButton, pageInfo, nextButton);
+        paginationContainer.appendChild(nextButton);
     };
 
     const loadSalesData = (page = 1) => {
@@ -156,6 +176,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dateInput.addEventListener('change', () => loadSalesData(1));
 
-    
     loadSalesData();
 });

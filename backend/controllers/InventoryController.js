@@ -23,7 +23,7 @@ const createInventory = async (req, res) => {
             inventory = await inventory.save();
             return res.status(200).json(inventory); 
         } else {
-       
+           
             const newInventory = new Inventory({
                 product: productId,
                 stock,
@@ -79,7 +79,7 @@ const updateInventory = async (req, res) => {
     try {
         console.log(`Fetching inventory with ID: ${id}`);
 
-       
+        
         const inventory = await Inventory.findById(id);
         if (!inventory) {
             console.log('Inventory not found with the provided ID.'); 
@@ -88,32 +88,48 @@ const updateInventory = async (req, res) => {
 
         console.log('Found Inventory:', inventory);
 
-
+       
         const product = await Product.findById(inventory.product);
         if (!product) {
             console.log('Product not found for this inventory:', inventory.product); 
             return res.status(404).json({ error: 'Product not found' });
         }
 
-
         console.log('Found Product:', product);
 
-   
+       
         const updatedInventory = await Inventory.findByIdAndUpdate(
             id,
             { stock, lastUpdated: Date.now() },
             { new: true } 
         );
 
-        
-        console.log('Updated Inventory:', updatedInventory);
+     
+        const updatedProduct = await Product.findByIdAndUpdate(
+            product._id,
+            { stock }, 
+            { new: true }
+        );
 
-        res.status(200).json(updatedInventory);
+       
+        if (!updatedProduct) {
+            return res.status(404).json({ error: 'Failed to update product stock' });
+        }
+
+        console.log('Updated Inventory:', updatedInventory);
+        console.log('Updated Product:', updatedProduct);
+
+      
+        res.status(200).json({
+            updatedInventory,
+            updatedProduct
+        });
     } catch (error) {
         console.error('Error updating inventory:', error); 
         res.status(500).json({ error: error.message });
     }
 };
+
 
     
 const deleteInventory = async (req, res) => {

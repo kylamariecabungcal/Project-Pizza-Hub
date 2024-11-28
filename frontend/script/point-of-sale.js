@@ -127,7 +127,7 @@ async function checkout() {
 
     const orderData = {
         orderDetails: orderItems.map(item => ({
-            productId: item.productId,
+            productId: item.productId,  
             quantity: item.quantity
         })),
         totalAmount: totalCost
@@ -167,6 +167,7 @@ async function checkout() {
         });
     }
 }
+
 
 getData().then(result => {
     if (result && result.length) {
