@@ -9,12 +9,12 @@ const orderRoutes = require('./routes/order');
 const saleRoutes = require('./routes/sales');
 
 const app = express();
-const SECRET_KEY = 'your_secret_key';
+const SECRET_KEY = 'admin';
 
 app.use(cors());
 app.use(bodyParser.json());  
 app.use(express.static('public'));  
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('uploads'));  
 
 
 app.use('/api/user', userRoutes);  
