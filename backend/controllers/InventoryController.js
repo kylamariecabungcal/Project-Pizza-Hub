@@ -18,25 +18,33 @@ const createInventory = async (req, res) => {
         let inventory = await Inventory.findOne({ product: productId });
 
         if (inventory) {
-            
+    
             inventory.stock += stock; 
             inventory = await inventory.save();
-            return res.status(200).json(inventory); 
+
+            
+            product.stock += stock;
+            await product.save();
+
+            return res.status(200).json({ inventory, product });
         } else {
-           
+    
             const newInventory = new Inventory({
                 product: productId,
                 stock,
             });
             await newInventory.save();
-            return res.status(201).json(newInventory); 
+
+    
+            product.stock += stock;
+            await product.save();
+
+            return res.status(201).json({ newInventory, product });
         }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-
-
 
 
 const getInventories = async (req, res) => {
@@ -52,8 +60,6 @@ const getInventories = async (req, res) => {
 const getInventory = async (req, res) => {
     const { id } = req.params;
 
-    console.log('Fetching Inventory with ID:', id); 
-
     try {
         const inventory = await Inventory.findById(id).populate('product');
         if (!inventory) {
@@ -67,86 +73,79 @@ const getInventory = async (req, res) => {
 };
 
 
-
 const updateInventory = async (req, res) => {
-    const { stock } = req.body;
-    const { id } = req.params; 
+    const { id } = req.params;
+    const { name, price, stock } = req.body;
 
-    if (stock === undefined || isNaN(stock) || stock < 0) {
-        return res.status(400).json({ error: 'Valid stock quantity is required.' });
+    if (name === undefined && price === undefined && stock === undefined) {
+        return res.status(400).json({ error: 'At least one field (name, price, or stock) must be provided to update.' });
     }
 
     try {
-        console.log(`Fetching inventory with ID: ${id}`);
+    
+        const inventory = await Inventory.findById(id).populate('product');
+        
+        if (!inventory) {
+            return res.status(404).json({ error: 'Inventory not found.' });
+        }
 
         
-        const inventory = await Inventory.findById(id);
-        if (!inventory) {
-            console.log('Inventory not found with the provided ID.'); 
-            return res.status(404).json({ error: 'Inventory not found' });
+        if (name !== undefined) {
+            inventory.product.name = name;  
         }
 
-        console.log('Found Inventory:', inventory);
-
-       
-        const product = await Product.findById(inventory.product);
-        if (!product) {
-            console.log('Product not found for this inventory:', inventory.product); 
-            return res.status(404).json({ error: 'Product not found' });
+        if (price !== undefined) {
+            inventory.product.price = price; 
         }
 
-        console.log('Found Product:', product);
-
-       
-        const updatedInventory = await Inventory.findByIdAndUpdate(
-            id,
-            { stock, lastUpdated: Date.now() },
-            { new: true } 
-        );
-
-     
-        const updatedProduct = await Product.findByIdAndUpdate(
-            product._id,
-            { stock }, 
-            { new: true }
-        );
-
-       
-        if (!updatedProduct) {
-            return res.status(404).json({ error: 'Failed to update product stock' });
+        if (stock !== undefined) {
+            const stockDifference = stock - inventory.stock;
+            inventory.stock = stock;  
+            inventory.product.stock += stockDifference; 
         }
 
-        console.log('Updated Inventory:', updatedInventory);
-        console.log('Updated Product:', updatedProduct);
+    
+        await inventory.product.save(); 
+        await inventory.save(); 
 
-      
-        res.status(200).json({
-            updatedInventory,
-            updatedProduct
-        });
+        res.status(200).json({ inventory, product: inventory.product });
     } catch (error) {
-        console.error('Error updating inventory:', error); 
         res.status(500).json({ error: error.message });
     }
 };
 
-
-    
 const deleteInventory = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const deletedInventory = await Inventory.findByIdAndDelete(id);
+        
+        const deletedInventory = await Inventory.findByIdAndDelete(id).populate('product');
 
         if (!deletedInventory) {
             return res.status(404).json({ error: 'Inventory not found' });
         }
 
-        res.status(200).json({ message: 'Inventory deleted successfully' });
+        
+        const product = deletedInventory.product;
+        
+        
+        const remainingInventory = await Inventory.findOne({ product: product._id });
+
+        if (!remainingInventory) {
+            
+            await Product.findByIdAndDelete(product._id);
+            return res.status(200).json({ message: 'Inventory and associated product deleted successfully' });
+        }
+
+        product.stock -= deletedInventory.stock;
+        await product.save();
+
+        res.status(200).json({ message: 'Inventory deleted successfully, product stock updated', product });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 module.exports = {
     createInventory,

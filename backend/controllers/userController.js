@@ -1,127 +1,32 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
+const SECRET_KEY = 'your_secret_key';  
 
-const isPasswordValid = (password) => {
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,20}$/;
-    return passwordRegex.test(password);
+
+const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    
+    const token = jwt.sign({ id: user._id }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({ message: 'Login successful', token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
-
-const registerUser = async (req, res) => {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ message: "All fields are required." });
-    }
-
-    if (!isPasswordValid(password)) {
-        return res.status(400).json({
-            message:
-                "Password must be 8-20 characters, include at least one uppercase letter, one number, and contain no spaces.",
-        });
-    }
-
-    try {
-        const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            return res.status(400).json({ message: "Username already exists." });
-        }
-
-        const user = new User({ username, password });
-        await user.save();
-
-        res.status(201).json({ message: "User registered successfully!" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error. Please try again later." });
-    }
-};
-
-
-const getAllUsers = async (req, res) => {
-    try {
-        const users = await User.find({}, { password: 0 }); 
-        res.status(200).json(users);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to retrieve users." });
-    }
-};
-
-
-const getUser = async (req, res) => {
-    try {
-        // Assuming the user ID is passed as a URL parameter (e.g., /users/:id)
-        const { id } = req.params;
-
-        // Find the user by ID and exclude the password field
-        const user = await User.findById(id, { password: 0 });
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        res.status(200).json(user);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to retrieve user." });
-    }
-};
-
-
-const deleteUser = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const user = await User.findByIdAndDelete(id);
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        res.status(200).json({ message: "User deleted successfully." });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to delete user." });
-    }
-};
-
-const updateUser = async (req, res) => {
-    const { id } = req.params;
-    const { username, password } = req.body;
-
-    if (!username && !password) {
-        return res.status(400).json({ message: "At least one field is required to update." });
-    }
-
-    try {
-        const updates = {};
-        if (username) updates.username = username;
-        if (password) {
-            if (!isPasswordValid(password)) {
-                return res.status(400).json({
-                    message:
-                        "Password must be 8-20 characters, include at least one uppercase letter, one number, and contain no spaces.",
-                });
-            }
-            updates.password = password;
-        }
-
-        const user = await User.findByIdAndUpdate(
-            id,
-            { $set: updates },
-            { new: true, runValidators: true }
-        );
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        res.status(200).json({ message: "User updated successfully.", user });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Failed to update user." });
-    }
-};
-
-module.exports = { registerUser, getAllUsers, deleteUser, updateUser, getUser };
+module.exports = { loginUser };
