@@ -51,10 +51,10 @@ const getAllUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
-        // Assuming the user ID is passed as a URL parameter (e.g., /users/:id)
+        
         const { id } = req.params;
 
-        // Find the user by ID and exclude the password field
+        
         const user = await User.findById(id, { password: 0 });
 
         if (!user) {
