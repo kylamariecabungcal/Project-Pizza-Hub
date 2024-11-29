@@ -165,3 +165,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchSalesData();
 });
+document.addEventListener('DOMContentLoaded', function () {
+    
+   
+    async function fetchLowStockProducts() {
+        try {
+            
+            const response = await fetch('http://localhost:4000/api/inventories'); 
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch products');
+            }
+
+            const data = await response.json();
+
+            const lowStockThreshold = 5; 
+            const lowStockProducts = data.filter(product => product.stock <= lowStockThreshold);
+
+            renderLowStockProducts(lowStockProducts); 
+        } catch (error) {
+            console.error('Error fetching low stock products:', error);
+            alert('Failed to load low stock products');
+        }
+    }
+
+   
+    function renderLowStockProducts(lowStockProducts) {
+        const tbody = document.getElementById('low-stock-products');
+        tbody.innerHTML = ''; 
+
+        if (lowStockProducts.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="2">No low stock products</td>';
+            tbody.appendChild(row);
+        } else {
+           
+            lowStockProducts.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.stock}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    }
+
+    
+    fetchLowStockProducts();
+
+});
+
