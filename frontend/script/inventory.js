@@ -82,6 +82,7 @@ const createTableRow = (productItem, index) => {
 
     const productNameCell = document.createElement('td');
     productNameCell.innerText = product.name || 'Unnamed Product';
+    productNameCell.style.wordWrap = 'break-word'; 
 
     const priceCell = document.createElement('td');
     priceCell.innerText = product.price ? `₱${product.price.toFixed(2)}` : '₱0.00';
@@ -200,6 +201,7 @@ const createTableRow = (productItem, index) => {
 
     return row;
 };
+
 
 const itemsPerPage = 12;
 let currentPage = 1;

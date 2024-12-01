@@ -166,11 +166,9 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchSalesData();
 });
 document.addEventListener('DOMContentLoaded', function () {
-    
    
     async function fetchLowStockProducts() {
         try {
-            
             const response = await fetch('http://localhost:4000/api/inventories'); 
             
             if (!response.ok) {
@@ -180,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             const lowStockThreshold = 5; 
-            const lowStockProducts = data.filter(product => product.stock <= lowStockThreshold);
+            const lowStockProducts = data.filter(product => product.product.stock <= lowStockThreshold);
 
             renderLowStockProducts(lowStockProducts); 
         } catch (error) {
@@ -189,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-   
     function renderLowStockProducts(lowStockProducts) {
         const tbody = document.getElementById('low-stock-products');
         tbody.innerHTML = ''; 
@@ -199,20 +196,18 @@ document.addEventListener('DOMContentLoaded', function () {
             row.innerHTML = '<td colspan="2">No low stock products</td>';
             tbody.appendChild(row);
         } else {
-           
             lowStockProducts.forEach(product => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${product.name}</td>
-                    <td>${product.stock}</td>
+                    <td>${product.product.name}</td>
+                    <td>${product.product.stock}</td>
                 `;
                 tbody.appendChild(row);
             });
         }
     }
 
-    
     fetchLowStockProducts();
-
 });
+
 

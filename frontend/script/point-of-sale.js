@@ -28,15 +28,20 @@ const createCardBody = (menuItem) => {
     const div = document.createElement('div');
     const h5 = document.createElement('h5');
     const p = document.createElement('p');
+    const stockInfo = document.createElement('p'); 
     const button = document.createElement('button');
 
     div.classList.add('card-body', 'text-center');
     h5.classList.add('card-title', 'text-white');
     p.classList.add('card-text', 'text-white');
+    stockInfo.classList.add('card-text', 'text-white'); 
     button.classList.add('btn', 'btn-order');
 
     h5.innerHTML = `${menuItem.name}`;
     p.innerText = `₱${menuItem.price}`;
+    
+  
+    stockInfo.innerText = `Stock: ${menuItem.stock}`; 
 
     const img = document.createElement('img');
     img.src = `http://localhost:4000${menuItem.image}`; 
@@ -51,10 +56,12 @@ const createCardBody = (menuItem) => {
     div.append(img);
     div.append(h5);
     div.append(p);
+    div.append(stockInfo); 
     div.append(button);
 
     return div;
 };
+
 
 let orderItems = [];
 let totalCost = 0;
@@ -79,26 +86,97 @@ function addToOrder(menuItem) {
 function updateOrderSummary() {
     const orderList = document.getElementById('orderList');
     orderList.innerHTML = ''; 
-    totalCost = 0; 
+    totalCost = 0;
+
+    
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-dark', 'text-white');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector('tbody');
 
     orderItems.forEach((item, index) => {
-        const listItem = document.createElement('li');
-        listItem.classList.add('list-group-item', 'bg-dark', 'text-white');
-        listItem.innerHTML = `
-            ${item.name} - ₱${item.price} x 
-            <button class="btn btn-sm btn-light" onclick="adjustQuantity(${index}, -1)">-</button>
-            <span class="quantity">${item.quantity}</span>
-            <button class="btn btn-sm btn-light" onclick="adjustQuantity(${index}, 1)">+</button>
-            <span> = ₱${(item.price * item.quantity).toFixed(2)}</span>
-            <button class="btn btn-danger btn-sm float-end" onclick="removeItem(${index})">Remove</button>
-        `;
-        orderList.appendChild(listItem);
+        const row = document.createElement('tr');
+        
+       
+        const productCell = document.createElement('td');
+        productCell.innerText = item.name;
+
+        const priceCell = document.createElement('td');
+        priceCell.innerText = `₱${item.price}`;
+
+        
+        const quantityCell = document.createElement('td');
+        const quantityContainer = document.createElement('div');
+        quantityContainer.classList.add('d-flex', 'align-items-center', 'justify-content-center');
+        
+        const minusButton = document.createElement('button');
+        minusButton.classList.add('btn', 'btn-sm', 'btn-light', 'mx-1');
+        minusButton.onclick = () => adjustQuantity(index, -1);
+        minusButton.innerText = '-';
+
+        const quantitySpan = document.createElement('span');
+        quantitySpan.classList.add('quantity', 'mx-1');
+        quantitySpan.innerText = item.quantity;
+
+        const plusButton = document.createElement('button');
+        plusButton.classList.add('btn', 'btn-sm', 'btn-light', 'mx-1');
+        plusButton.onclick = () => adjustQuantity(index, 1);
+        plusButton.innerText = '+';
+
+        quantityContainer.appendChild(minusButton);
+        quantityContainer.appendChild(quantitySpan);
+        quantityContainer.appendChild(plusButton);
+        
+        quantityCell.appendChild(quantityContainer);
+
+        
+        const totalCell = document.createElement('td');
+        totalCell.innerText = `₱${(item.price * item.quantity).toFixed(2)}`;
+
+        
+        const removeCell = document.createElement('td');
+        const removeButton = document.createElement('button');
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        removeButton.onclick = () => removeItem(index);
+        removeButton.innerText = 'Remove';
+        removeCell.appendChild(removeButton);
+
+        
+        row.appendChild(productCell);
+        row.appendChild(priceCell);
+        row.appendChild(quantityCell);
+        row.appendChild(totalCell);
+        row.appendChild(removeCell);
+
+        
+        tbody.appendChild(row);
 
         totalCost += item.price * item.quantity;
     });
 
-    document.getElementById('totalCost').innerText = totalCost.toFixed(2);
+    orderList.appendChild(table);
+
+    
+    const totalCostElement = document.getElementById('totalCost');
+    if (totalCostElement) {
+        totalCostElement.innerText = totalCost.toFixed(2);
+    }
 }
+
+
+
 
 function adjustQuantity(index, change) {
     if (orderItems[index].quantity + change > 0) {
@@ -151,9 +229,10 @@ async function checkout() {
                 text: `Your order ID is: ${result._id}`,
                 confirmButtonText: 'Great'
             }).then(() => {
-                orderItems = [];
-                totalCost = 0;
-                updateOrderSummary();
+                orderItems = [];  
+                totalCost = 0;    
+                updateOrderSummary();  
+                window.location.reload();  
             });
         } else {
             throw new Error(result.error || "Something went wrong during checkout.");
@@ -167,6 +246,7 @@ async function checkout() {
         });
     }
 }
+
 
 
 getData().then(result => {
