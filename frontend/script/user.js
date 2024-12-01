@@ -5,32 +5,70 @@ document.getElementById('loginForm').addEventListener('submit', async (event) =>
   const password = document.getElementById('password').value;
 
   const messageDiv = document.getElementById('message');
-  messageDiv.textContent = '';  // Clear any previous messages
+  messageDiv.textContent = '';
 
   try {
-    const response = await fetch('http://localhost:4000/api/user/login', {  // Correct API route
+    const response = await fetch('http://localhost:4000/api/user/login', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',  // Ensure the Content-Type is set to application/json
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, password }),  // Send username and password as JSON
+      body: JSON.stringify({ username, password }),
     });
 
-    const data = await response.json();  // Parse the response as JSON
+    const data = await response.json();
     if (response.ok) {
-      messageDiv.textContent = 'Login successful!';
-      messageDiv.style.color = 'green';
+      await Swal.fire({
+        title: 'Login Successful',
+        html: '<div>Redirecting to your dashboard...</div>',
+        imageUrl: '/frontend/images/pizza.gif',
+        imageAlt: 'Loading...',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        timerProgressBar: true,
+        timer: 2000,
+        width: '300px',
+        imageWidth: 150,
+        imageHeight: 150
+      });
 
-      // Store token if login is successful
       localStorage.setItem('token', data.token);
-      window.location.href = '/frontend/index.html';  // Redirect after successful login
+      window.location.href = '/frontend/index.html';
     } else {
-      messageDiv.textContent = data.message;
-      messageDiv.style.color = 'red';
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      
+      Toast.fire({
+        icon: "error",
+        title: data.message || 'Login failed'
+      });
     }
   } catch (err) {
-    messageDiv.textContent = 'Something went wrong. Please try again.';
-    messageDiv.style.color = 'red';
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    
+    Toast.fire({
+      icon: "error",
+      title: "Something went wrong. Please try again."
+    });
   }
 });
 
