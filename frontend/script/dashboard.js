@@ -147,6 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 3,
                 plugins: {
                     tooltip: {
                         callbacks: {
@@ -156,7 +158,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     },
                     legend: {
-                        position: 'top',
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 10
+                        }
                     }
                 }
             }

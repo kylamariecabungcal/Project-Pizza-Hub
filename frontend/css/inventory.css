@@ -34,3 +34,89 @@ table {
 td {
     padding: 10px;
 }
+
+.card {
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+/* Style for action buttons in table */
+.table .btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.table .btn-action + .btn-action {
+    margin-left: 0.5rem;
+}
+
+/* Responsive padding adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+}
+
+/* Table wrapper for mobile scrolling */
+.table-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Mobile view styles */
+@media (max-width: 768px) {
+    .table-wrapper {
+        max-height: 400px; /* Adjust this value as needed */
+        overflow-y: auto;
+    }
+
+    .table-wrapper thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: #f8f9fa;
+    }
+
+    /* Custom scrollbar styling */
+    .table-wrapper::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+}
+
+/* Ensure table header stays in place */
+.table thead th {
+    white-space: nowrap;
+}
+
+/* Prevent content wrapping in table cells for better mobile view */
+.table td {
+    white-space: nowrap;
+}

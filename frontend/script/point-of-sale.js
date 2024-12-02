@@ -14,7 +14,7 @@ const createCard = (menuItem) => {
     const col = document.createElement('div');
     const card = document.createElement('div');
 
-    col.classList.add('col-sm-3', 'mb-4');
+    col.classList.add('col-6', 'col-sm-4', 'col-md-4', 'col-lg-3', 'mb-4');
     card.classList.add('card', 'menu-item', 'product-card');
 
     card.append(createCardBody(menuItem));

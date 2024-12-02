@@ -17,6 +17,7 @@ const sendData = async (data) => {
 
         if (response.ok) {
             const result = await response.json();
+            await getInventoryData();
             return result;
         } else {
             console.error('Error: Response not OK');
@@ -34,6 +35,7 @@ const sendData = async (data) => {
             title: 'Error Adding Product',
             text: 'An error occurred while sending the data. Please try again.',
         });
+        return null;
     }
 };
 
@@ -88,22 +90,48 @@ const createTableRow = (productItem, index) => {
     priceCell.innerText = product.price ? `₱${product.price.toFixed(2)}` : '₱0.00';
 
     const stockCell = document.createElement('td');
-
     const stockContainer = document.createElement('div');
     stockContainer.classList.add('d-flex', 'align-items-center', 'justify-content-center');
 
     const decreaseButton = document.createElement('button');
-    const stockDisplay = document.createElement('span');
+    const stockDisplay = document.createElement('input');
     const increaseButton = document.createElement('button');
     
     decreaseButton.innerHTML = '<i class="fa fa-minus"></i>';
     increaseButton.innerHTML = '<i class="fa fa-plus"></i>';
-    stockDisplay.innerText = productItem.stock || 0;
+    
+    stockDisplay.type = 'number';
+    stockDisplay.value = productItem.stock || 0;
+    stockDisplay.min = '0';
+    stockDisplay.style.width = '60px';
+    stockDisplay.style.textAlign = 'center';
+    stockDisplay.classList.add('form-control', 'form-control-sm', 'mx-2');
+
+    stockDisplay.addEventListener('change', async () => {
+        const newStock = parseInt(stockDisplay.value) || 0;
+        if (newStock >= 0) {
+            const confirmation = await Swal.fire({
+                title: 'Are you sure?',
+                text: `Are you sure you want to change the stock to ${newStock}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No'
+            });
+
+            if (confirmation.isConfirmed) {
+                productItem.stock = newStock;
+                await updateStockOnServer(productItem.inventoryId, newStock);
+            } else {
+                stockDisplay.value = productItem.stock; // Reset to original value if cancelled
+            }
+        } else {
+            stockDisplay.value = productItem.stock;
+        }
+    });
     
     decreaseButton.classList.add('btn', 'btn-sm', 'btn-danger', 'stock-button');
     increaseButton.classList.add('btn', 'btn-sm', 'btn-success', 'stock-button');
-    
-    stockDisplay.classList.add('mx-2', 'stock-value');
 
     stockContainer.appendChild(decreaseButton);
     stockContainer.appendChild(stockDisplay);
@@ -227,45 +255,136 @@ const updateInventoryTable = (products) => {
 
 const updatePaginationControls = (totalItems) => {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-
     const paginationContainer = document.getElementById('pagination');
     paginationContainer.innerHTML = '';
 
-    const prevButton = document.createElement('button');
-    prevButton.innerText = 'Previous';
-    prevButton.classList.add('btn', 'btn-sm', 'btn-primary');
-    prevButton.disabled = currentPage === 1;
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 1) {
+    // Create pagination container
+    const paginationNav = document.createElement('nav');
+    paginationNav.setAttribute('aria-label', 'Page navigation');
+    const paginationUl = document.createElement('ul');
+    paginationUl.classList.add('pagination', 'justify-content-center', 'pagination-sm');
+
+    // Previous button
+    const prevLi = document.createElement('li');
+    prevLi.classList.add('page-item');
+    prevLi.classList.toggle('disabled', currentPage === 1);
+    const prevLink = document.createElement('a');
+    prevLink.classList.add('page-link');
+    prevLink.href = '#';
+    prevLink.innerText = 'Previous';
+    if (currentPage !== 1) {
+        prevLink.addEventListener('click', (e) => {
+            e.preventDefault();
             currentPage--;
             updateInventoryTable(allProducts);
-        }
-    });
-    paginationContainer.appendChild(prevButton);
-
-    for (let i = 1; i <= totalPages; i++) {
-        const pageButton = document.createElement('button');
-        pageButton.innerText = i;
-        pageButton.classList.add('btn', 'btn-sm', 'btn-secondary', 'mx-1');
-        pageButton.disabled = currentPage === i;
-        pageButton.addEventListener('click', () => {
-            currentPage = i;
-            updateInventoryTable(allProducts);
         });
-        paginationContainer.appendChild(pageButton);
+    }
+    prevLi.appendChild(prevLink);
+    paginationUl.appendChild(prevLi);
+
+    // Calculate page range
+    const maxPageButtons = 5;
+    let startPage = Math.max(currentPage - Math.floor(maxPageButtons / 2), 1);
+    let endPage = Math.min(startPage + maxPageButtons - 1, totalPages);
+
+    if (endPage - startPage + 1 < maxPageButtons) {
+        startPage = Math.max(endPage - maxPageButtons + 1, 1);
     }
 
-    const nextButton = document.createElement('button');
-    nextButton.innerText = 'Next';
-    nextButton.classList.add('btn', 'btn-sm', 'btn-primary');
-    nextButton.disabled = currentPage === totalPages;
-    nextButton.addEventListener('click', () => {
-        if (currentPage < totalPages) {
+    // First page and ellipsis
+    if (startPage > 1) {
+        const firstLi = document.createElement('li');
+        firstLi.classList.add('page-item');
+        const firstLink = document.createElement('a');
+        firstLink.classList.add('page-link');
+        firstLink.href = '#';
+        firstLink.innerText = '1';
+        firstLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentPage = 1;
+            updateInventoryTable(allProducts);
+        });
+        firstLi.appendChild(firstLink);
+        paginationUl.appendChild(firstLi);
+
+        if (startPage > 2) {
+            const ellipsisLi = document.createElement('li');
+            ellipsisLi.classList.add('page-item', 'disabled');
+            const ellipsisSpan = document.createElement('span');
+            ellipsisSpan.classList.add('page-link');
+            ellipsisSpan.innerHTML = '&hellip;';
+            ellipsisLi.appendChild(ellipsisSpan);
+            paginationUl.appendChild(ellipsisLi);
+        }
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        const pageLi = document.createElement('li');
+        pageLi.classList.add('page-item');
+        pageLi.classList.toggle('active', currentPage === i);
+        const pageLink = document.createElement('a');
+        pageLink.classList.add('page-link');
+        pageLink.href = '#';
+        pageLink.innerText = i;
+        if (currentPage !== i) {
+            pageLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentPage = i;
+                updateInventoryTable(allProducts);
+            });
+        }
+        pageLi.appendChild(pageLink);
+        paginationUl.appendChild(pageLi);
+    }
+
+    // Last page and ellipsis
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const ellipsisLi = document.createElement('li');
+            ellipsisLi.classList.add('page-item', 'disabled');
+            const ellipsisSpan = document.createElement('span');
+            ellipsisSpan.classList.add('page-link');
+            ellipsisSpan.innerHTML = '&hellip;';
+            ellipsisLi.appendChild(ellipsisSpan);
+            paginationUl.appendChild(ellipsisLi);
+        }
+
+        const lastLi = document.createElement('li');
+        lastLi.classList.add('page-item');
+        const lastLink = document.createElement('a');
+        lastLink.classList.add('page-link');
+        lastLink.href = '#';
+        lastLink.innerText = totalPages;
+        lastLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentPage = totalPages;
+            updateInventoryTable(allProducts);
+        });
+        lastLi.appendChild(lastLink);
+        paginationUl.appendChild(lastLi);
+    }
+
+    // Next button
+    const nextLi = document.createElement('li');
+    nextLi.classList.add('page-item');
+    nextLi.classList.toggle('disabled', currentPage === totalPages);
+    const nextLink = document.createElement('a');
+    nextLink.classList.add('page-link');
+    nextLink.href = '#';
+    nextLink.innerText = 'Next';
+    if (currentPage !== totalPages) {
+        nextLink.addEventListener('click', (e) => {
+            e.preventDefault();
             currentPage++;
             updateInventoryTable(allProducts);
-        }
-    });
-    paginationContainer.appendChild(nextButton);
+        });
+    }
+    nextLi.appendChild(nextLink);
+    paginationUl.appendChild(nextLi);
+
+    paginationNav.appendChild(paginationUl);
+    paginationContainer.appendChild(paginationNav);
 };
 
 
