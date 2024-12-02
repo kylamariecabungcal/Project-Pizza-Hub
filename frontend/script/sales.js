@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const paginationContainer = document.getElementById('paginationContainer');
     const loadingMessage = document.getElementById('loadingMessage');
 
-    const itemsPerPage = 10; 
+    const itemsPerPage = 7; 
     let currentPage = 1;
 
     const showLoading = () => {
